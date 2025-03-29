@@ -1,0 +1,6 @@
+
+{
+    "ip_address": "127.0.0.1", /* It can be any meaningful address. Names like `localhost` are not allowed and throws error Instead of localhost you can use this example. */
+    "port": 12345, /* It can be any meaningful port number. */
+    "max_connections": 0 /* It can be any integer value, 0 (zero) means no limit */
+}
