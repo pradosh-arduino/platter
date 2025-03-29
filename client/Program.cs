@@ -47,7 +47,7 @@ namespace ChatClient
                 byte[] username_encoded = Encoding.ASCII.GetBytes(username);
                 stream.Write(username_encoded, 0, username_encoded.Length);
 
-                Thread receiveThread = new Thread(ReceiveMessages);
+                Thread receiveThread = new Thread(receive_messages);
                 receiveThread.Start();
 
                 Console.Clear();
@@ -124,7 +124,7 @@ namespace ChatClient
             }
         }
 
-        static void ReceiveMessages()
+        static void receive_messages()
         {
             try
             {
@@ -136,6 +136,9 @@ namespace ChatClient
                     if (bytesRead > 0)
                     {
                         string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        if(Console.CursorLeft != 0){
+                            Console.WriteLine();
+                        }
                         AnsiConsole.MarkupLine(message);
                     }
                     else
