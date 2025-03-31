@@ -59,7 +59,7 @@ namespace ChatClient
                     print_error("Username must be between 3 and 20 characters.");
                     Environment.Exit(1);
                 }
-                byte[] username_encoded = Encoding.ASCII.GetBytes(username);
+                byte[] username_encoded = Encoding.ASCII.GetBytes(username); // Username must be in ASCII only.
                 stream.Write(username_encoded, 0, username_encoded.Length);
 
                 Thread receiveThread = new Thread(receive_messages);
@@ -99,7 +99,7 @@ namespace ChatClient
                     
                     byte[] buffer = new byte[1024];
                     int bytesRead = 0;
-                    byte[] data = Encoding.ASCII.GetBytes(message);
+                    byte[] data = Encoding.Unicode.GetBytes(message);
 
                     stream.Write(data, 0, data.Length);
 
@@ -107,7 +107,7 @@ namespace ChatClient
 
                     if (bytesRead > 0)
                     {
-                        string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        string response = Encoding.Unicode.GetString(buffer, 0, bytesRead);
 
                         if (response == "[green]Pong![/]")
                         {
@@ -146,7 +146,7 @@ namespace ChatClient
 
                     AnsiConsole.Status().Start("Sending message...", ctx =>
                     {
-                        byte[] data = Encoding.ASCII.GetBytes(message);
+                        byte[] data = Encoding.Unicode.GetBytes(message);
                         stream.Write(data, 0, data.Length);
                     });
 
@@ -160,7 +160,7 @@ namespace ChatClient
                 {
                     AnsiConsole.Status().Start("Sending message...", ctx =>
                     {
-                        byte[] data = Encoding.ASCII.GetBytes(message);
+                        byte[] data = Encoding.Unicode.GetBytes(message);
                         stream.Write(data, 0, data.Length);
                     });
                 }
@@ -184,7 +184,7 @@ namespace ChatClient
 
                     if (bytesRead > 0)
                     {
-                        string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        string message = Encoding.Unicode.GetString(buffer, 0, bytesRead);
 
                         if(message == "[green]Pong![/]")
                         {

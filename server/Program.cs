@@ -248,7 +248,7 @@ namespace ChatServer
                 bytesRead = stream.Read(name_buffer, 0, name_buffer.Length);
                 if (bytesRead > 0)
                 {
-                    clientName = Encoding.ASCII.GetString(name_buffer, 0, bytesRead).Trim();
+                    clientName = Encoding.ASCII.GetString(name_buffer, 0, bytesRead).Trim(); // Username must be in ASCII only.
                     broadcast_message($"[yellow bold]{clientName} has joined the chat.[/]", client);
                     AnsiConsole.MarkupLine($"[grey]{client.Client.RemoteEndPoint} => {clientName}[/]");
                 }
@@ -266,7 +266,7 @@ namespace ChatServer
                     bytesRead = stream.Read(buffer, 0, buffer.Length);
                     if (bytesRead > 0)
                     {
-                        string message = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
+                        string message = Encoding.Unicode.GetString(buffer, 0, bytesRead).Trim();
                         AnsiConsole.MarkupLine($"[bold grey]LOGS:[/] {clientName} => {message}");
 
                         if(message.Trim() == "/ping"){
@@ -317,7 +317,7 @@ namespace ChatServer
                 return;
             }
 
-            byte[] data = Encoding.ASCII.GetBytes(message);
+            byte[] data = Encoding.Unicode.GetBytes(message);
             
             try
             {
@@ -338,7 +338,7 @@ namespace ChatServer
 
         private static void broadcast_message(string message, TcpClient sender_client)
         {
-            byte[] data = Encoding.ASCII.GetBytes(message);
+            byte[] data = Encoding.Unicode.GetBytes(message);
             lock (clientsLock)
             {
                 foreach (TcpClient client in clients)
