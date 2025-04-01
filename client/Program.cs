@@ -5,12 +5,74 @@ using Spectre.Console;
 
 namespace ChatClient
 {
+    class prad_buffer {
+        private char[] buffer = new char[1024];
+
+        public int buffer_index = 0;
+
+        public void add_char(char c){
+            if(buffer_index >= buffer.Length)
+                return;
+
+            buffer[buffer_index] = c;
+            buffer_index++;
+        }
+
+        public void clear_buffer(){
+            for(int i = 0; i < buffer.Length; i++){
+                buffer[i] = '\0';
+            }
+
+            buffer_index = 0;
+        }
+
+        public void get_input(){
+            ConsoleKeyInfo key;
+
+            while (true)
+            {
+                if(!Console.KeyAvailable) continue;
+
+                key = Console.ReadKey(true);
+
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (buffer_index > 0)
+                    {
+                        buffer_index--;
+                        Console.Write("\b \b");
+                    }
+                }
+                else
+                {
+                    add_char(key.KeyChar);
+                    Console.Write(key.KeyChar);
+                }
+            }
+        }
+
+        public char[] get_buffer(){
+            return buffer;
+        }
+
+        public string get_buffer_as_string(){
+            return new string(buffer, 0, buffer_index);
+        }
+    }
+
     class Client
     {
         private static TcpClient? client;
         private static NetworkStream? stream;
 
         private static string username = "<not_set>";
+
+        static prad_buffer input_buffer = new prad_buffer();
 
         static void print_error(string message){
             if(Console.CursorLeft > 0){
@@ -87,8 +149,17 @@ namespace ChatClient
             if(stream == null)
                 return;
 
+            input_buffer.clear_buffer(); // For safety reasons.
+
             while (true){
-                message = AnsiConsole.Prompt(new TextPrompt<string>("[blue]" + username + " =>[/]")).Trim();
+
+                // START - Using custom input buffer
+                input_buffer.get_input();
+
+                message = input_buffer.get_buffer_as_string().Trim();
+
+                input_buffer.clear_buffer();
+                // END - Using custom input buffer
                 
                 if (string.IsNullOrEmpty(message))
                     continue;
@@ -192,17 +263,25 @@ namespace ChatClient
                             continue;
                         }   
 
-                        bool was_typing = false;
+                        if(input_buffer.buffer_index > 0){
+                            Console.Write("\r"); // carriage returns
 
-                        if(Console.CursorLeft > 0){
-                            Console.WriteLine();
-                            was_typing = true;
+                            int prev_top = Console.CursorTop;
+                            int prev_left = Console.CursorLeft;
+
+                            for(int i=0; i<input_buffer.buffer_index; i++){
+                                Console.Write(' ');
+                            }
+
+                            Console.CursorTop = prev_top;
+                            Console.CursorLeft = prev_left;
                         }
 
                         AnsiConsole.MarkupLine(message);
 
-                        if(was_typing){
-                            AnsiConsole.Markup("[blue]" + username + " [grey italic](Your previous input will be sent together)[/] => [/]");
+                        // print the buffer back below
+                        if(input_buffer.buffer_index > 0){
+                            Console.Write(input_buffer.get_buffer_as_string());
                         }
                     }
                     else
