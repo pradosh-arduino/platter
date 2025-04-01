@@ -10,12 +10,15 @@ namespace ChatClient
 
         public int buffer_index = 0;
 
+        public int length = 0;
+
         public void add_char(char c){
             if(buffer_index >= buffer.Length)
                 return;
 
             buffer[buffer_index] = c;
             buffer_index++;
+            length++;
         }
 
         public void clear_buffer(){
@@ -24,34 +27,65 @@ namespace ChatClient
             }
 
             buffer_index = 0;
+            length = 0;
         }
 
         public void get_input(){
-            ConsoleKeyInfo key;
+            ConsoleKeyInfo current;
 
             while (true)
             {
                 if(!Console.KeyAvailable) continue;
 
-                key = Console.ReadKey(true);
+                current = Console.ReadKey(true);
 
-                if (key.Key == ConsoleKey.Enter)
+                if (current.Key == ConsoleKey.Enter)
                 {
-                    Console.WriteLine();
+                    if(length != 0)
+                        Console.WriteLine();
+
+                    for(int i=0; i<length;i++){
+                        if(buffer[i] == '\0'){
+                            length = i;
+                            break;
+                        }
+                    }
+                    
                     break;
                 }
-                else if (key.Key == ConsoleKey.Backspace)
+                else if (current.Key == ConsoleKey.Backspace)
                 {
                     if (buffer_index > 0)
                     {
                         buffer_index--;
+                        length--;
                         Console.Write("\b \b");
                     }
                 }
+                else if(current.Key == ConsoleKey.LeftArrow){
+                    if(Console.CursorLeft > 0){
+                        Console.CursorLeft--;
+                        buffer_index--;
+                    }
+                }
+                else if(current.Key == ConsoleKey.RightArrow){
+                    if(Console.CursorLeft < length){
+                        Console.CursorLeft++;
+                        buffer_index++;
+                    }
+                }
+                else if(current.Key == ConsoleKey.Home){
+                    Console.Write("\r");
+                    buffer_index = 0;
+                }
+                else if(current.Key == ConsoleKey.End){
+                    Console.CursorLeft = length;
+                    buffer_index = length;
+                }
                 else
                 {
-                    add_char(key.KeyChar);
-                    Console.Write(key.KeyChar);
+                    add_char(current.KeyChar);
+                    Console.Write(current.KeyChar);
                 }
             }
         }
@@ -61,7 +95,7 @@ namespace ChatClient
         }
 
         public string get_buffer_as_string(){
-            return new string(buffer, 0, buffer_index);
+            return new string(buffer, 0, length);
         }
     }
 
@@ -223,7 +257,7 @@ namespace ChatClient
 
                     Thread.Sleep(300); //ms, wait for the response.
 
-                } else if(message.Trim().StartsWith("/"))
+                } else if(message.StartsWith("/"))
                 {
                     AnsiConsole.MarkupLine($"[red]Unknown command.[/] [grey italic](Only you can see this message, other members cannot.)[/]");
                     help_table();
@@ -263,13 +297,13 @@ namespace ChatClient
                             continue;
                         }   
 
-                        if(input_buffer.buffer_index > 0){
+                        if(input_buffer.length > 0){
                             Console.Write("\r"); // carriage returns
 
                             int prev_top = Console.CursorTop;
                             int prev_left = Console.CursorLeft;
 
-                            for(int i=0; i<input_buffer.buffer_index; i++){
+                            for(int i=0; i<input_buffer.length; i++){
                                 Console.Write(' ');
                             }
 
@@ -280,7 +314,7 @@ namespace ChatClient
                         AnsiConsole.MarkupLine(message);
 
                         // print the buffer back below
-                        if(input_buffer.buffer_index > 0){
+                        if(input_buffer.length > 0){
                             Console.Write(input_buffer.get_buffer_as_string());
                         }
                     }
