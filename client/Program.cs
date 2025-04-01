@@ -128,6 +128,8 @@ namespace ChatClient
         {
             Console.Clear();
 
+            Console.Title = "Platter - Client";
+
             var intro_table = new Table();
 
             intro_table.AddColumn("[blue bold]Introduction[/]");
@@ -244,16 +246,14 @@ namespace ChatClient
                 else if(message == "/clear")
                 {
                     Console.Clear();
+                    AnsiConsole.Write(new Rule("[bold yellow]Connected successfully![/]").LeftJustified());
                 }
                 else if(message == "/help"){
                     help_table();
                 } else if(message == "/members"){
 
-                    AnsiConsole.Status().Start("Sending message...", ctx =>
-                    {
-                        byte[] data = Encoding.Unicode.GetBytes(message);
-                        stream.Write(data, 0, data.Length);
-                    });
+                    byte[] data = Encoding.Unicode.GetBytes(message);
+                    stream.Write(data, 0, data.Length);
 
                     Thread.Sleep(300); //ms, wait for the response.
 
@@ -263,11 +263,8 @@ namespace ChatClient
                     help_table();
                 } else
                 {
-                    AnsiConsole.Status().Start("Sending message...", ctx =>
-                    {
-                        byte[] data = Encoding.Unicode.GetBytes(message);
-                        stream.Write(data, 0, data.Length);
-                    });
+                    byte[] data = Encoding.Unicode.GetBytes(message);
+                    stream.Write(data, 0, data.Length);
                 }
 
                 message = "";
