@@ -95,6 +95,8 @@ namespace ChatClient
 
             AnsiConsole.Markup(prefix);
 
+            string pfx = prefix.Replace("[blue]", "").Replace("[/]", "");
+
             while (true)
             {
                 if(!Console.KeyAvailable) continue;
@@ -125,23 +127,24 @@ namespace ChatClient
                     }
                 }
                 else if(current.Key == ConsoleKey.LeftArrow){
-                    if(Console.CursorLeft > 0){
+                    if(Console.CursorLeft > pfx.Length){
                         Console.CursorLeft--;
                         buffer_index--;
                     }
                 }
                 else if(current.Key == ConsoleKey.RightArrow){
-                    if(Console.CursorLeft < length){
+                    if(Console.CursorLeft < length + pfx.Length){
                         Console.CursorLeft++;
                         buffer_index++;
                     }
                 }
                 else if(current.Key == ConsoleKey.Home){
                     Console.Write("\r");
+                    Console.CursorLeft += pfx.Length;
                     buffer_index = 0;
                 }
                 else if(current.Key == ConsoleKey.End){
-                    Console.CursorLeft = length;
+                    Console.CursorLeft = length + pfx.Length;
                     buffer_index = length;
                 }
                 else
@@ -263,8 +266,10 @@ namespace ChatClient
                 input_buffer.clear_buffer();
                 // END - Using custom input buffer
                 
-                if (string.IsNullOrEmpty(message))
+                if (string.IsNullOrEmpty(message)){
+                    Console.WriteLine();
                     continue;
+                }
 
                 if (message == "/ping")
                 {
